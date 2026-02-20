@@ -154,7 +154,7 @@ Rectangle {
 
                                 Image {
                                     id: deleteBtn
-                                    source: "assets/delete.png"
+                                    source: "/dist/assets/delete.png"
                                     width: 22
                                     height: 22
                                     anchors.right: parent.right
