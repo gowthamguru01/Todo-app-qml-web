@@ -67,7 +67,9 @@ Rectangle {
                     width: 70
                     height: 30
                     radius: 8
-                    color: addHover.containsMouse ? "#3b82f6" : "#2563eb"
+                     color: input.text.trim().length > 0 
+                        ? (addHover.containsMouse ? "#3b82f6" : "#2563eb") 
+                         : "#4b5563"
 
                     anchors.right: parent.right
                     anchors.rightMargin: 10
@@ -83,8 +85,9 @@ Rectangle {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
+                        enabled: input.text.trim().length > 0
                         onClicked: {
-
+                            if (input.text.trim().length === 0) return
                             if (root.todoArray.length >= 8){
                                 console.log("Maximum limit reached")
                                 return
@@ -114,6 +117,7 @@ Rectangle {
                         Repeater {
                             model: root.todoArray
                             delegate: Rectangle {
+                                property bool isEditing: false
                                 width: parent.width - 40
                                 height: 60
                                 radius: 12
@@ -122,19 +126,29 @@ Rectangle {
 
                                 Text {
                                     text: modelData.task
+                                    visible: !isEditing
                                     color: "white"
                                     anchors.centerIn: parent
                                 }
 
-                                Rectangle {
+                                // text input for editing task
+                                TextInput {
+                                    id: editInput
+                                    text: modelData.task
+                                    visible: isEditing
+                                    color: "white"
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 40
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: parent.width - 150
+                                }
+                                //checkbox image 
+                                Image {
                                     id: checkBox
-                                    width: 20
-                                    height: 20
-                                    radius: 4
-                                    color: modelData.done
-                                            ? "#22c55e"
-                                              : (checkHover.containsMouse ? "#94a3b8" : "#64748b")
-
+                                    width: 24
+                                    height: 24
+                                    radius: 2
+                                    source: modelData.done ? Qt.resolvedUrl("checked.svg") : Qt.resolvedUrl("unchecked.svg")
                                     anchors.left: parent.left
                                     anchors.leftMargin: 16
                                     anchors.verticalCenter: parent.verticalCenter
@@ -152,11 +166,38 @@ Rectangle {
                                     }
                                 }
 
+                                // edit icon 
+                                Image {
+                                    id: editBtn
+                                    source: isEditing ? Qt.resolvedUrl("save_icon.svg") : Qt.resolvedUrl("edit_icon.svg")
+                                    width: 20
+                                    height: 20
+                                    anchors.right: deleteBtn.left
+                                    anchors.rightMargin: 10
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    opacity: editHover.containsMouse ? 1 : 0.8
+                                }
+
+                                MouseArea {
+                                    id: editHover
+                                    anchors.fill: editBtn
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor 
+                                    onClicked: {
+                                        if (isEditing) {
+                                            var temp = root.todoArray.slice()
+                                            temp[index].task = editInput.text
+                                            root.todoArray = temp
+                                        }
+                                        isEditing = !isEditing
+                                    }
+                                } 
+
                                 Image {
                                     id: deleteBtn
-                                    source: "/dist/assets/delete.png"
-                                    width: 22
-                                    height: 22
+                                    source: Qt.resolvedUrl("delete.svg")
+                                    width: 24
+                                    height: 24
                                     anchors.right: parent.right
                                     anchors.rightMargin: 16
                                     anchors.verticalCenter: parent.verticalCenter
